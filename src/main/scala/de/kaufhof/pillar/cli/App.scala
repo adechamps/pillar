@@ -2,7 +2,7 @@ package de.kaufhof.pillar.cli
 
 import java.io.File
 
-import com.datastax.driver.core.{ConsistencyLevel, QueryOptions, Cluster}
+import com.datastax.driver.core.{Cluster, ConsistencyLevel, QueryOptions, SocketOptions}
 import com.typesafe.config.{Config, ConfigFactory}
 import de.kaufhof.pillar._
 import de.kaufhof.pillar.config.ConnectionConfiguration
@@ -74,6 +74,8 @@ class App(reporter: Reporter, configuration: Config) {
       .addContactPoints(connectionConfiguration.seedAddress:_*)
       .withPort(connectionConfiguration.port)
       .withQueryOptions(queryOptions)
+      .withSocketOptions(new SocketOptions().setConnectTimeoutMillis(120000).setReadTimeoutMillis(120000))
+      .withMaxSchemaAgreementWaitSeconds(120)
     connectionConfiguration.auth.foreach(clusterBuilder.withAuthProvider)
 
     connectionConfiguration.sslConfig.foreach(_.setAsSystemProperties())
